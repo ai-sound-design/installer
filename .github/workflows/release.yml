@@ -1,0 +1,120 @@
+# Builds the installer apps on GitHub's Macs and Windows machines and attaches them to
+# the release, together with pgvector built for PostgreSQL 17 on Windows (what the
+# backend installed on Windows without Docker fetches).
+#
+# To publish a version: set it in VERSION, commit, then push a tag (from any computer):
+#   git tag v1.0.1
+#   git push origin v1.0.1
+# The release v1.0.1 then gets AI-Sound-Design-Installer-macOS.zip,
+# AI-Sound-Design-Installer-Windows.zip and pgvector-pg17-windows-x64.zip, and installed
+# installers offer to update themselves to it.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build and attach to (e.g. v1.0.1)"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+  PG_VERSION: 17.12-1
+  PGVECTOR_VERSION: 0.8.7
+
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - name: Build
+        run: bash macos/build.sh "${TAG#v}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: macos/build/AI-Sound-Design-Installer-macOS.zip
+          if-no-files-found: error
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - name: Build
+        shell: pwsh
+        run: |
+          $version = $env:TAG.TrimStart("v")
+          powershell -NoProfile -ExecutionPolicy Bypass -File windows\build.ps1 $version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: windows/build/AI-Sound-Design-Installer-Windows.zip
+          if-no-files-found: error
+
+  pgvector:
+    # pgvector has no Windows binaries of its own: built here against EDB's PostgreSQL 17
+    # binaries, the same ones windows\backend.py in ai-services installs
+    runs-on: windows-latest
+    steps:
+      - name: Fetch PostgreSQL and pgvector
+        shell: pwsh
+        run: |
+          curl.exe -fsSL -o pg.zip "https://get.enterprisedb.com/postgresql/postgresql-$env:PG_VERSION-windows-x64-binaries.zip"
+          curl.exe -fsSL -o pgvector.zip "https://codeload.github.com/pgvector/pgvector/zip/refs/tags/v$env:PGVECTOR_VERSION"
+          Expand-Archive pg.zip -DestinationPath .
+          Expand-Archive pgvector.zip -DestinationPath .
+      - name: Build
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set VS=%%i
+          call "%VS%\VC\Auxiliary\Build\vcvars64.bat"
+          set PGROOT=%CD%\pgsql
+          cd pgvector-%PGVECTOR_VERSION%
+          nmake /NOLOGO /F Makefile.win
+          if errorlevel 1 exit /b 1
+          nmake /NOLOGO /F Makefile.win install
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path pkg/lib, pkg/share/extension, pkg/include/server/extension/vector | Out-Null
+          Copy-Item pgsql/lib/vector.dll pkg/lib/
+          Copy-Item pgsql/share/extension/vector* pkg/share/extension/
+          Copy-Item pgsql/include/server/extension/vector/*.h pkg/include/server/extension/vector/
+          Set-Content pkg/VERSION "pgvector $env:PGVECTOR_VERSION for PostgreSQL $env:PG_VERSION, Windows x64"
+          Compress-Archive -Path pkg/lib, pkg/share, pkg/include, pkg/VERSION -DestinationPath pgvector-pg17-windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pgvector
+          path: pgvector-pg17-windows-x64.zip
+          if-no-files-found: error
+
+  release:
+    needs: [macos, windows, pgvector]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          merge-multiple: true
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          ls -l assets
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" assets/* --clobber
+          else
+            gh release create "$TAG" assets/* --title "AI Sound Design Installer ${TAG#v}" \
+              --notes "Mac (Apple Silicon): download AI-Sound-Design-Installer-macOS.zip, open it and double-click the app; the first time, macOS refuses: System Settings > Privacy & Security > Open Anyway.
+          Windows 10/11: download AI-Sound-Design-Installer-Windows.zip, unpack it and double-click AI Sound Design Installer.exe; if SmartScreen objects: More info > Run anyway.
+          pgvector-pg17-windows-x64.zip is fetched by the backend's own installer on Windows without Docker."
+          fi

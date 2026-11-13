@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The installer app for Windows: WPF on .NET Framework 4.8, which every Windows 10 and 11
+       already has, so the result is one small .exe without a runtime to install first.
+       Built by build.ps1 beside it (dotnet build); a release of the repository builds it on
+       GitHub (.github/workflows/release.yml). -->
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AssemblyName>AI Sound Design Installer</AssemblyName>
+    <RootNamespace>AiSoundDesign.Installer</RootNamespace>
+    <ApplicationIcon>build\icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <InstallerVersion Condition="'$(InstallerVersion)' == ''">0.0.0</InstallerVersion>
+    <Version>$(InstallerVersion)</Version>
+    <Product>AI Sound Design Installer</Product>
+    <Company>AI Sound Design</Company>
+    <Copyright>MIT licensed</Copyright>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <DebugType>none</DebugType>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>build\bin\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+    <Page Include="MainWindow.xaml" />
+    <Compile Include="App.xaml.cs" />
+    <Compile Include="MainWindow.xaml.cs" />
+    <Compile Include="Model.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+</Project>

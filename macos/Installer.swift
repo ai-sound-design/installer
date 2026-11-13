@@ -653,6 +653,7 @@ struct ComponentCard<Extra: View>: View {
     var badges: [(String, Color)]
     var detail: String
     var news: String?
+    var warning: String? = nil
     @ViewBuilder var extra: () -> Extra
 
     var body: some View {
@@ -679,6 +680,12 @@ struct ComponentCard<Extra: View>: View {
                     Label(news, systemImage: "arrow.down.circle")
                         .font(.callout)
                         .foregroundStyle(.blue)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if let warning {
+                    Label(warning, systemImage: "exclamationmark.triangle")
+                        .font(.callout)
+                        .foregroundStyle(.orange)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 extra()
@@ -788,22 +795,22 @@ struct ChooseView: View {
                     }
                     ComponentCard(isOn: model.isOn(.backend), disabled: model.backendRequired, symbol: "cpu",
                                   title: "Backend services", badges: badges(.backend),
-                                  detail: "Generation, search, spotting and Hybrid, running on this Mac's GPU. About 25 GB of models; the first installation takes 30 to 60 minutes.",
+                                  detail: "Generation, search, spotting and Hybrid, running on this Mac's GPU. About 35 GB on disk (22 GB of that are models); the first installation takes 30 to 60 minutes.",
                                   news: news(.backend))
                     ComponentCard(isOn: model.isOn(.webui), symbol: "safari", title: "Web UI", badges: badges(.webui),
-                                  detail: "The four modes in the browser, without Pro Tools; opened with the app AI Sound Design.",
+                                  detail: "The four modes in the browser, without Pro Tools; opened with the app AI Sound Design. About 1 GB.",
                                   news: news(.webui))
                     ComponentCard(isOn: model.isOn(.plugin), symbol: "slider.horizontal.3", title: "Pro Tools plugin (AAX)",
                                   badges: badges(.plugin),
-                                  detail: "The newest release from GitHub, for Pro Tools. macOS asks for this Mac's password to install it.",
-                                  news: news(.plugin))
+                                  detail: "The newest release from GitHub, for Pro Tools. macOS asks for this Mac's password to install it. About 200 MB.",
+                                  news: news(.plugin), warning: pluginWarning)
                     ComponentCard(isOn: model.isOn(.database), symbol: "waveform.badge.magnifyingglass",
                                   title: "Sound database", badges: databaseBadges,
-                                  detail: "The BBC Sound Effects archive's index (about 33,000 sounds), so the services find sounds by video or prompt. Free for personal, educational and research use under the BBC's terms.") {
+                                  detail: "The BBC Sound Effects archive's index (about 33,000 sounds), so the services find sounds by video or prompt; about 1 GB. Free for personal, educational and research use under the BBC's terms.") {
                         Toggle(isOn: $model.audio) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Also download all of its audio and build the audio index")
-                                Text("About 60 GB and several hours. Needed for the search by sound and Hybrid's library pieces; not with an existing archive folder (below).")
+                                Text("About 60 GB of audio plus 10 GB of index, and several hours. Needed for the search by sound and Hybrid's library pieces; not with an existing archive folder (below).")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
@@ -819,7 +826,7 @@ struct ChooseView: View {
                                       placeholder: shortPath(Paths.services.appendingPathComponent("data").path),
                                       enabled: !model.backendInstalled,
                                       help: model.backendInstalled ? "Set at the first installation."
-                                          : "Database, models (about 25 GB) and downloaded audio (60 GB more with the full archive).")
+                                          : "Database, models (about 22 GB) and downloaded audio (60 GB more with the full archive).")
                             FolderRow(label: "Pro Tools sessions", path: $model.sessionsDir, placeholder: "<data folder>/sessions",
                                       help: "Where the web UI finds sessions (.ptx), read-only.")
                             FolderRow(label: "Existing BBC archive", path: $model.bbcArchive, placeholder: "None",
@@ -892,6 +899,12 @@ struct ChooseView: View {
     private func news(_ part: Part) -> String? {
         if case .update(let what) = model.freshness[part] { return "New: \(what)" }
         return nil
+    }
+
+    /// The plugin alone does nothing: it talks to the backend services
+    private var pluginWarning: String? {
+        guard model.chosen.contains(.plugin), !model.backendInstalled, !model.chosen.contains(.backend), !model.backendRequired else { return nil }
+        return "Needs the backend services, which are neither installed nor chosen. Tick them as well, unless the plugin is to use a backend on another computer (set in its Settings)."
     }
 
     private var databaseBadges: [(String, Color)] {

@@ -1,0 +1,233 @@
+<Window x:Class="AiSoundDesign.Installer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AI Sound Design Installer" Width="780" Height="840" MinWidth="660" MinHeight="620"
+        WindowStartupLocation="CenterScreen" Background="#F3F3F5" FontFamily="Segoe UI" FontSize="13"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+    <Grid>
+
+        <!-- ── Choose ─────────────────────────────────────────────────────── -->
+        <DockPanel x:Name="ChoosePanel">
+            <Border DockPanel.Dock="Top" Padding="24,20,24,16" Background="White" BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="56" Height="56" CornerRadius="12" VerticalAlignment="Top">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                                <GradientStop Color="#293385" Offset="0"/>
+                                <GradientStop Color="#7A3DC7" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Path Data="M4,22 L4,34 M11,14 L11,42 M18,22 L18,34 M25,8 L25,48 M32,18 L32,38 M39,12 L39,44 M46,24 L46,32" Stroke="White" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Margin="3"/>
+                    </Border>
+                    <StackPanel Margin="16,0,0,0" VerticalAlignment="Center" MaxWidth="600">
+                        <TextBlock Text="AI Sound Design" FontSize="20" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="Subtitle" Style="{StaticResource Detail}" Text="Choose what to install on this PC."/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border DockPanel.Dock="Bottom" Padding="16,12" Background="White" BorderBrush="{StaticResource CardBorder}" BorderThickness="0,1,0,0">
+                <DockPanel>
+                    <Button x:Name="ActionButton" DockPanel.Dock="Right" Content="Install" IsDefault="True" Click="ActionClick" FontWeight="SemiBold"/>
+                    <Button DockPanel.Dock="Right" Content="Cancel" IsCancel="True" Click="CloseClick"/>
+                    <TextBlock x:Name="Footer" VerticalAlignment="Center" Foreground="{StaticResource Secondary}" FontSize="12"/>
+                </DockPanel>
+            </Border>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="24,18,24,24">
+
+                    <Border x:Name="UpdateBanner" Visibility="Collapsed" Background="#E3EBFC" CornerRadius="10" Padding="14" Margin="0,0,0,12">
+                        <DockPanel>
+                            <Button x:Name="UpdateInstallerButton" DockPanel.Dock="Right" Content="Update Installer" Click="UpdateInstallerClick" VerticalAlignment="Center"/>
+                            <StackPanel>
+                                <TextBlock x:Name="UpdateTitle" FontWeight="SemiBold" Text="A new installer is available"/>
+                                <TextBlock x:Name="UpdateDetail" Style="{StaticResource Detail}" Text="It replaces this one and opens again."/>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Backend services -->
+                    <Border x:Name="BackendCard" Style="{x:Null}" Background="White" CornerRadius="10" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" Padding="14" Margin="0,0,0,12" MouseLeftButtonUp="CardClick" Tag="Backend">
+                        <DockPanel>
+                            <CheckBox x:Name="BackendCheck" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="0,3,12,0" Checked="CheckChanged" Unchecked="CheckChanged" Tag="Backend"/>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Backend services" FontWeight="SemiBold" FontSize="14"/>
+                                    <StackPanel x:Name="BackendBadges" Orientation="Horizontal"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Detail}" Text="Generation, search, spotting and Hybrid, running on this PC's NVIDIA GPU. About 45 GB on disk in Docker Desktop, 35 GB on the PC directly (22 GB of that are models); the first installation takes 30 to 60 minutes."/>
+                                <TextBlock x:Name="BackendNews" Style="{StaticResource Detail}" Foreground="{StaticResource Accent}" Visibility="Collapsed"/>
+                                <StackPanel x:Name="BackendModePanel" Margin="0,10,0,0">
+                                    <TextBlock Text="Where it runs" FontWeight="SemiBold" FontSize="12"/>
+                                    <RadioButton x:Name="BackendModeDocker" GroupName="BackendMode" Margin="0,5,0,0" Checked="ModeChanged" Click="SwallowClick">
+                                        <TextBlock x:Name="BackendModeDockerText" TextWrapping="Wrap" Text="In Docker Desktop: the services as containers, as on a Linux server."/>
+                                    </RadioButton>
+                                    <RadioButton x:Name="BackendModeLocal" GroupName="BackendMode" Margin="0,4,0,0" Checked="ModeChanged" Click="SwallowClick">
+                                        <TextBlock TextWrapping="Wrap" Text="On this PC directly, without Docker: Python, PostgreSQL and Ollama are installed and run in the background."/>
+                                    </RadioButton>
+                                    <TextBlock x:Name="BackendModeNote" Style="{StaticResource Detail}" FontSize="12" Visibility="Collapsed"/>
+                                </StackPanel>
+                                <StackPanel x:Name="OllamaPanel" Margin="0,10,0,0">
+                                    <TextBlock Text="Vision-language model for the spotting (Ollama)" FontWeight="SemiBold" FontSize="12"/>
+                                    <RadioButton x:Name="OllamaDocker" GroupName="Ollama" Margin="0,5,0,0" Checked="ModeChanged" Click="SwallowClick">
+                                        <TextBlock TextWrapping="Wrap" Text="Ollama in the stack: its own container, nothing else on this PC changes."/>
+                                    </RadioButton>
+                                    <RadioButton x:Name="OllamaHost" GroupName="Ollama" Margin="0,4,0,0" Checked="ModeChanged" Click="SwallowClick">
+                                        <TextBlock x:Name="OllamaHostText" TextWrapping="Wrap" Text="Ollama on this PC: installed with winget if missing; it then also serves other programs."/>
+                                    </RadioButton>
+                                </StackPanel>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Web UI -->
+                    <Border x:Name="WebuiCard" Background="White" CornerRadius="10" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" Padding="14" Margin="0,0,0,12" MouseLeftButtonUp="CardClick" Tag="Webui">
+                        <DockPanel>
+                            <CheckBox x:Name="WebuiCheck" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="0,3,12,0" Checked="CheckChanged" Unchecked="CheckChanged" Tag="Webui"/>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Web UI" FontWeight="SemiBold" FontSize="14"/>
+                                    <StackPanel x:Name="WebuiBadges" Orientation="Horizontal"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Detail}" Text="The four modes in the browser, without Pro Tools; opened from the Start menu (AI Sound Design). About 1 GB."/>
+                                <TextBlock x:Name="WebuiNews" Style="{StaticResource Detail}" Foreground="{StaticResource Accent}" Visibility="Collapsed"/>
+                                <StackPanel x:Name="WebuiModePanel" Margin="0,10,0,0">
+                                    <TextBlock Text="Where it runs" FontWeight="SemiBold" FontSize="12"/>
+                                    <RadioButton x:Name="WebuiModeDocker" GroupName="WebuiMode" Margin="0,5,0,0" Checked="ModeChanged" Click="SwallowClick">
+                                        <TextBlock TextWrapping="Wrap" Text="In Docker Desktop, as a container beside the services."/>
+                                    </RadioButton>
+                                    <RadioButton x:Name="WebuiModeLocal" GroupName="WebuiMode" Margin="0,4,0,0" Checked="ModeChanged" Click="SwallowClick">
+                                        <TextBlock TextWrapping="Wrap" Text="On this PC directly: built with Node.js, served by a background service."/>
+                                    </RadioButton>
+                                    <TextBlock x:Name="WebuiModeNote" Style="{StaticResource Detail}" FontSize="12" Visibility="Collapsed"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Pro Tools plugin -->
+                    <Border x:Name="PluginCard" Background="White" CornerRadius="10" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" Padding="14" Margin="0,0,0,12" MouseLeftButtonUp="CardClick" Tag="Plugin">
+                        <DockPanel>
+                            <CheckBox x:Name="PluginCheck" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="0,3,12,0" Checked="CheckChanged" Unchecked="CheckChanged" Tag="Plugin"/>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Pro Tools plugin (AAX)" FontWeight="SemiBold" FontSize="14"/>
+                                    <StackPanel x:Name="PluginBadges" Orientation="Horizontal"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Detail}" Text="The newest release from GitHub, for Pro Tools. Windows asks for permission to install it. About 200 MB."/>
+                                <TextBlock x:Name="PluginNews" Style="{StaticResource Detail}" Foreground="{StaticResource Accent}" Visibility="Collapsed"/>
+                                <TextBlock x:Name="PluginWarning" Style="{StaticResource Detail}" Foreground="DarkOrange" Visibility="Collapsed" Text="Needs the backend services, which are neither installed nor chosen. Tick them as well, unless the plugin is to use a backend on another computer (set in its Settings)."/>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Sound database -->
+                    <Border x:Name="DatabaseCard" Background="White" CornerRadius="10" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" Padding="14" Margin="0,0,0,12" MouseLeftButtonUp="CardClick" Tag="Database">
+                        <DockPanel>
+                            <CheckBox x:Name="DatabaseCheck" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="0,3,12,0" Checked="CheckChanged" Unchecked="CheckChanged" Tag="Database"/>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Sound database" FontWeight="SemiBold" FontSize="14"/>
+                                    <StackPanel x:Name="DatabaseBadges" Orientation="Horizontal"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource Detail}" Text="The BBC Sound Effects archive's index (about 33,000 sounds), so the services find sounds by video or prompt; about 1 GB. Free for personal, educational and research use under the BBC's terms."/>
+                                <CheckBox x:Name="AudioCheck" Margin="0,10,0,0" Checked="AudioChanged" Unchecked="AudioChanged">
+                                    <StackPanel>
+                                        <TextBlock Text="Also download all of its audio and build the audio index" TextWrapping="Wrap"/>
+                                        <TextBlock Style="{StaticResource Detail}" FontSize="12" Margin="0,1,0,0" Text="About 60 GB of audio plus 10 GB of index, and several hours. Needed for the search by sound and Hybrid's library pieces; not with an existing archive folder (below)."/>
+                                    </StackPanel>
+                                </CheckBox>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Folders -->
+                    <Expander Margin="0,4,0,0" BorderThickness="0">
+                        <Expander.Header>
+                            <TextBlock Text="Folders" FontWeight="SemiBold" FontSize="14"/>
+                        </Expander.Header>
+                        <Grid Margin="8,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Data folder" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="DataPath" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                            <Button Grid.Row="0" Grid.Column="2" x:Name="DataDefault" Content="✕" MinWidth="0" Padding="8,3" Click="FolderClick" Tag="data-default" ToolTip="Use the default"/>
+                            <Button Grid.Row="0" Grid.Column="3" x:Name="DataChoose" Content="Choose…" Click="FolderClick" Tag="data"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" x:Name="DataHelp" Style="{StaticResource Detail}" FontSize="12" Margin="0,2,0,12"/>
+
+                            <TextBlock Grid.Row="2" Text="Pro Tools sessions" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="SessionsPath" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                            <Button Grid.Row="2" Grid.Column="2" x:Name="SessionsDefault" Content="✕" MinWidth="0" Padding="8,3" Click="FolderClick" Tag="sessions-default" ToolTip="Use the default"/>
+                            <Button Grid.Row="2" Grid.Column="3" Content="Choose…" Click="FolderClick" Tag="sessions"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource Detail}" FontSize="12" Margin="0,2,0,12" Text="Where the web UI finds sessions (.ptx), read-only."/>
+
+                            <TextBlock Grid.Row="4" Text="Existing BBC archive" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="BbcPath" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                            <Button Grid.Row="4" Grid.Column="2" x:Name="BbcDefault" Content="✕" MinWidth="0" Padding="8,3" Click="FolderClick" Tag="bbc-default" ToolTip="None"/>
+                            <Button Grid.Row="4" Grid.Column="3" Content="Choose…" Click="FolderClick" Tag="bbc"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource Detail}" FontSize="12" Margin="0,2,0,12" Text="A copy of the archive on disk (&lt;id&gt;.wav or .mp3), used instead of downloading it."/>
+
+                            <TextBlock Grid.Row="6" Text="Your own sounds" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="6" Grid.Column="1" x:Name="OwnPath" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                            <Button Grid.Row="6" Grid.Column="2" x:Name="OwnDefault" Content="✕" MinWidth="0" Padding="8,3" Click="FolderClick" Tag="own-default" ToolTip="None"/>
+                            <Button Grid.Row="6" Grid.Column="3" Content="Choose…" Click="FolderClick" Tag="own"/>
+                            <TextBlock Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource Detail}" FontSize="12" Margin="0,2,0,4" Text="A folder of your own sounds, indexed read-only."/>
+                        </Grid>
+                    </Expander>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- ── Running / done ──────────────────────────────────────────────── -->
+        <DockPanel x:Name="RunPanel" Visibility="Collapsed">
+            <Border DockPanel.Dock="Top" Padding="24,20,24,16" Background="White" BorderBrush="{StaticResource CardBorder}" BorderThickness="0,0,0,1">
+                <StackPanel>
+                    <TextBlock x:Name="RunTitle" FontSize="20" FontWeight="SemiBold" Text="Installing"/>
+                    <TextBlock x:Name="RunSubtitle" Style="{StaticResource Detail}"/>
+                </StackPanel>
+            </Border>
+            <Border DockPanel.Dock="Bottom" Padding="16,12" Background="White" BorderBrush="{StaticResource CardBorder}" BorderThickness="0,1,0,0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="BackButton" Content="Back" Click="BackClick" Visibility="Collapsed"/>
+                        <Button x:Name="ExplorerButton" Content="Show in Explorer" Click="ExplorerClick" Visibility="Collapsed"/>
+                        <Button x:Name="SetupButton" Content="Setup page" Click="SetupClick" Visibility="Collapsed"/>
+                        <Button x:Name="WebuiButton" Content="Open Web UI" Click="WebuiClick" Visibility="Collapsed"/>
+                        <Button x:Name="CloseButton" Content="Close" Click="CloseClick" Visibility="Collapsed"/>
+                        <Button x:Name="StopButton" Content="Stop" Click="StopClick"/>
+                        <Button x:Name="RetryButton" Content="Try Again" Click="ActionClick" Visibility="Collapsed" FontWeight="SemiBold"/>
+                        <Button x:Name="DoneButton" Content="Done" Click="CloseClick" Visibility="Collapsed" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <TextBlock x:Name="RunFooter" VerticalAlignment="Center" Foreground="{StaticResource Secondary}" FontSize="12" TextWrapping="Wrap"/>
+                </DockPanel>
+            </Border>
+            <Grid Margin="24,18,24,16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel x:Name="Steps" Grid.Row="0" Margin="0,0,0,14"/>
+                <StackPanel Grid.Row="1" Margin="0,0,0,12">
+                    <TextBlock x:Name="StatusText" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <ProgressBar x:Name="Bar" Height="8" Margin="0,8,0,0" Minimum="0" Maximum="1"/>
+                </StackPanel>
+                <Border Grid.Row="2" x:Name="ErrorBox" Background="#FDE8E8" CornerRadius="8" Padding="12" Margin="0,0,0,12" Visibility="Collapsed">
+                    <TextBlock x:Name="ErrorText" TextWrapping="Wrap" Foreground="#9B1C1C"/>
+                </Border>
+                <TextBox Grid.Row="3" x:Name="LogBox" IsReadOnly="True" FontFamily="Consolas" FontSize="12" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Background="White" BorderBrush="{StaticResource CardBorder}" Padding="8" TextWrapping="NoWrap"/>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</Window>

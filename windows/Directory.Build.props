@@ -1,0 +1,8 @@
+<Project>
+  <!-- Everything the build makes goes under windows\build\ (set here, before the SDK's
+       props, as MSBuild wants it). -->
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>build\obj\</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>build\obj\</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+</Project>
