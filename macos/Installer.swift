@@ -702,8 +702,9 @@ struct ComponentCard<Extra: View>: View {
 
 extension ComponentCard where Extra == EmptyView {
     init(isOn: Binding<Bool>, disabled: Bool = false, symbol: String, title: String, badges: [(String, Color)],
-         detail: String, news: String? = nil) {
-        self.init(isOn: isOn, disabled: disabled, symbol: symbol, title: title, badges: badges, detail: detail, news: news) { EmptyView() }
+         detail: String, news: String? = nil, warning: String? = nil) {
+        self.init(isOn: isOn, disabled: disabled, symbol: symbol, title: title, badges: badges, detail: detail, news: news,
+                  warning: warning) { EmptyView() }
     }
 }
 
