@@ -381,10 +381,10 @@ if (Want "database") {
     }
     Ok "BBC Sound Effects: free for personal, educational and research use under the BBC's terms"
     Ok "(https://sound-effects.bbcrewind.co.uk/licensing)."
-    if ($audio -and -not $archive) { Ok "All of its audio (about 60 GB) is downloaded, then indexed: several hours." }
+    if ($audio -and -not $archive) { Ok "All of its audio (about 60 GB) is downloaded as well, for working without internet: some hours." }
     elseif (-not $archive) {
-        Ok "Without its audio: a sound is fetched the first time it is used. The search by sound and the"
-        Ok "Hybrid mode's library pieces need audio on disk (the installer's audio option)."
+        Ok "Without its audio: the ready-made index covers the search by video, prompt and sound; a recording"
+        Ok "is fetched from the BBC the first time it is used. The audio option keeps all of it on disk."
     }
     Ok "This window can be closed at any time: the work goes on in the background, also after a"
     Ok "restart, and running the installer again shows where it is."
