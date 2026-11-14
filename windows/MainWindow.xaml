@@ -131,7 +131,7 @@
                                     <TextBlock Text="Sound database" FontWeight="SemiBold" FontSize="14"/>
                                     <StackPanel x:Name="DatabaseBadges" Orientation="Horizontal"/>
                                 </StackPanel>
-                                <TextBlock Style="{StaticResource Detail}" Text="The BBC Sound Effects archive as a ready-made index from Hugging Face (about 6 GB, no audio): the services find sounds by video, prompt or sound and fetch a recording when it is used. Free for personal, educational and research use under the BBC's terms."/>
+                                <TextBlock Style="{StaticResource Detail}" Text="The BBC Sound Effects archive as a ready-made index from Hugging Face (about 2.5 GB, no audio): the services find sounds by video, prompt or sound and fetch a recording when it is used. Free for personal, educational and research use under the BBC's terms."/>
                                 <CheckBox x:Name="AudioCheck" Margin="0,10,0,0" Checked="AudioChanged" Unchecked="AudioChanged">
                                     <StackPanel>
                                         <TextBlock Text="Also download all of its audio" TextWrapping="Wrap"/>

@@ -807,7 +807,7 @@ struct ChooseView: View {
                                   news: news(.plugin), warning: pluginWarning)
                     ComponentCard(isOn: model.isOn(.database), symbol: "waveform.badge.magnifyingglass",
                                   title: "Sound database", badges: databaseBadges,
-                                  detail: "The BBC Sound Effects archive as a ready-made index from Hugging Face (about 6 GB, no audio): the services find sounds by video, prompt or sound and fetch a recording when it is used. Free for personal, educational and research use under the BBC's terms.") {
+                                  detail: "The BBC Sound Effects archive as a ready-made index from Hugging Face (about 2.5 GB, no audio): the services find sounds by video, prompt or sound and fetch a recording when it is used. Free for personal, educational and research use under the BBC's terms.") {
                         Toggle(isOn: $model.audio) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Also download all of its audio")
