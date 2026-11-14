@@ -363,7 +363,8 @@ if (Want "database") {
     $steps = @{}
     foreach ($s in $state.steps) { $steps[$s.name] = $s }
     $archive = $steps.ContainsKey("bbc_archive")
-    $wanted = @("bbc_metadata", "text_embeddings")
+    # The prebuilt index from Hugging Face (metadata, text embeddings and the audio index in one)
+    $wanted = @("bbc_index")
     if ($archive) { $wanted += "bbc_archive" } elseif ($audio) { $wanted += "bbc_audio" }
     $wanted += "audio_index"
     if ($audio -and -not $archive -and $steps["bbc_audio"].status -ne "complete") {
@@ -389,7 +390,7 @@ if (Want "database") {
     Ok "restart, and running the installer again shows where it is."
     At "status Starting the sound database"
     Write-Output ""
-    try { Call "/pipeline/start" @{ download = [bool]$audio } | Out-Null } catch { Fail "The setup service could not start the sound database: $($_.Exception.Message)" "database" }
+    try { Call "/pipeline/start" @{ download = [bool]$audio; prebuilt = $true } | Out-Null } catch { Fail "The setup service could not start the sound database: $($_.Exception.Message)" "database" }
     $retried = @{}
     $done = @{}
     $last = ""
@@ -424,7 +425,7 @@ if (Want "database") {
             # A step that failed is not retried by the pipeline itself: once per run here
             Ok "$($steps[$retry[0]].title) had failed before; trying it again"
             $retried[$retry[0]] = $true
-            try { Call "/jobs/$($retry[0])/start" @{} | Out-Null; Call "/pipeline/start" @{ download = [bool]$audio } | Out-Null } catch { }
+            try { Call "/jobs/$($retry[0])/start" @{} | Out-Null; Call "/pipeline/start" @{ download = [bool]$audio; prebuilt = $true } | Out-Null } catch { }
             continue
         }
         if ($failed.Count -gt 0) {

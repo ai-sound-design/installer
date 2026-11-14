@@ -9,7 +9,7 @@ Its window offers, each with a checkbox:
 | Backend services | [ai-services](https://github.com/ai-sound-design/ai-services), `main` | Mac: runs its `install_mac.sh` (Homebrew, Python, PostgreSQL, Ollama, the models, background services). Windows: in Docker Desktop with its `install.ps1`, or on the PC directly with its `install_windows.ps1` (Python, PostgreSQL, Ollama, the models, background services) |
 | Web UI | [ai-sound-webui](https://github.com/ai-sound-design/ai-sound-webui), `main` | set up with the services, opened by the app **AI Sound Design** (Mac) or from the Start menu (Windows); on Windows also as a container beside the Docker stack |
 | Pro Tools plugin | the newest release of [ai-protools-aax](https://github.com/ai-sound-design/ai-protools-aax/releases) | installs its macOS `.pkg` or its Windows setup |
-| Sound database | the BBC Sound Effects archive | loads its index through the services' setup step; optionally all of its audio (60 GB) and the audio index |
+| Sound database | the BBC Sound Effects archive | loads its ready-made index from Hugging Face (about 6 GB, no audio) through the services' setup step; optionally all of its audio (60 GB) |
 
 On Windows the window also asks where the backend and the web UI run, in Docker Desktop
 (when it is installed) or on the PC directly, and whether the vision-language model for
@@ -60,8 +60,8 @@ web UI and the setup page.
 
 ### Both
 
-The first installation downloads about 25 GB (models included) and takes 30 to 60
-minutes. The sound database loads in the background: the window can be closed while it
+The first installation downloads about 30 GB (the models and the sound index) and takes 30
+to 60 minutes. The sound database loads in the background: the window can be closed while it
 does, the loading carries on after a restart, and opening the installer again shows where
 it is. What went on is also in `installer.log` next to the installation.
 
